@@ -23,6 +23,15 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class)->withTimestamps();
     }
 
+    public function hasPermission(string $permission): bool
+    {
+        $this->loadMissing('roles.permissions');
+
+        return $this->roles
+            ->flatMap->permissions
+            ->contains('name', $permission);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

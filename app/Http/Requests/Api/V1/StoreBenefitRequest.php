@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreBenefitRequest extends FormRequest
 {
@@ -29,6 +30,8 @@ class StoreBenefitRequest extends FormRequest
             'usage_limit' => ['nullable', 'integer', 'min:1'],
             'usage_period' => ['nullable', 'string', 'max:255'],
             'is_active' => ['sometimes', 'boolean'],
+            'membership_type_ids' => ['nullable', 'array'],
+            'membership_type_ids.*' => ['integer', 'distinct', Rule::exists('membership_types', 'id')],
         ];
     }
 }

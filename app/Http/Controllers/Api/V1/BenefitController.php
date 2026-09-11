@@ -9,6 +9,7 @@ use App\Http\Resources\Api\V1\BenefitResource;
 use App\Models\Benefit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 
 class BenefitController extends Controller
 {
@@ -27,9 +28,18 @@ class BenefitController extends Controller
      */
     public function store(StoreBenefitRequest $request): JsonResponse
     {
-        $benefit = Benefit::query()->create($request->validated());
+        $data = $request->validated();
+        $membershipTypeIds = $data['membership_type_ids'] ?? [];
+        unset($data['membership_type_ids']);
 
-        return (new BenefitResource($benefit))->response()->setStatusCode(201);
+        $benefit = DB::transaction(function () use ($data, $membershipTypeIds): Benefit {
+            $benefit = Benefit::query()->create($data);
+            $benefit->membershipTypes()->sync($membershipTypeIds);
+
+            return $benefit;
+        });
+
+        return (new BenefitResource($benefit->load('membershipTypes')))->response()->setStatusCode(201);
     }
 
     /**
@@ -45,7 +55,17 @@ class BenefitController extends Controller
      */
     public function update(UpdateBenefitRequest $request, Benefit $benefit): BenefitResource
     {
-        $benefit->update($request->validated());
+        $data = $request->validated();
+        $membershipTypeIds = $data['membership_type_ids'] ?? null;
+        unset($data['membership_type_ids']);
+
+        DB::transaction(function () use ($benefit, $data, $membershipTypeIds): void {
+            $benefit->update($data);
+
+            if ($membershipTypeIds !== null) {
+                $benefit->membershipTypes()->sync($membershipTypeIds);
+            }
+        });
 
         return new BenefitResource($benefit->refresh()->load('membershipTypes'));
     }

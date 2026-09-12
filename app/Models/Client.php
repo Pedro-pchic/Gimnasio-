@@ -35,6 +35,11 @@ class Client extends Model
         return $this->hasMany(Sale::class);
     }
 
+    public function gymClassEnrollments(): HasMany
+    {
+        return $this->hasMany(GymClassEnrollment::class);
+    }
+
     /**
      * @return array<string, string>
      */

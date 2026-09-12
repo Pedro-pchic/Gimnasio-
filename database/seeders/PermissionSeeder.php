@@ -14,6 +14,13 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
+            'classes.view' => 'Consultar clases y actividades.',
+            'classes.manage' => 'Administrar clases y actividades.',
+            'schedules.view' => 'Consultar horarios de clases.',
+            'schedules.manage' => 'Administrar horarios de clases.',
+            'enrollments.view' => 'Consultar participantes de clases.',
+            'enrollments.register' => 'Inscribir y cancelar participantes de clases.',
+            'enrollments.attendance' => 'Marcar asistencia de participantes.',
             'payments.view' => 'Consultar pagos.',
             'payments.manage' => 'Registrar y cancelar pagos.',
             'sales.view' => 'Consultar ventas y comprobantes internos.',
@@ -64,6 +71,13 @@ class PermissionSeeder extends Seeder
                 'sales.manage',
                 'renewals.view',
                 'renewals.manage',
+                'classes.view',
+                'classes.manage',
+                'schedules.view',
+                'schedules.manage',
+                'enrollments.view',
+                'enrollments.register',
+                'enrollments.attendance',
             ],
             'Recepcionista' => [
                 'dashboard.view',
@@ -78,6 +92,10 @@ class PermissionSeeder extends Seeder
                 'sales.manage',
                 'renewals.view',
                 'renewals.manage',
+                'classes.view',
+                'schedules.view',
+                'enrollments.view',
+                'enrollments.register',
             ],
             'Supervisor' => [
                 'dashboard.view',
@@ -89,11 +107,19 @@ class PermissionSeeder extends Seeder
                 'payments.view',
                 'sales.view',
                 'renewals.view',
+                'classes.view',
+                'schedules.view',
+                'enrollments.view',
+                'enrollments.attendance',
             ],
             'Instructor / Coach' => [
                 'dashboard.view',
                 'services.view',
                 'clients.view',
+                'classes.view',
+                'schedules.view',
+                'enrollments.view',
+                'enrollments.attendance',
             ],
         ];
 

@@ -30,6 +30,11 @@ class Branch extends Model
         return $this->hasMany(Sale::class);
     }
 
+    public function gymClasses(): HasMany
+    {
+        return $this->hasMany(GymClass::class);
+    }
+
     /**
      * @return array<string, string>
      */

@@ -45,6 +45,7 @@ class ClientController extends Controller
                 'memberships' => fn (HasMany $query): HasMany => $query->with('membershipType')->orderByDesc('start_date')->orderByDesc('id'),
                 'payments' => fn (HasMany $query): HasMany => $query->with(['user', 'sale.receipt', 'clientMembership.membershipType'])->orderByDesc('payment_date')->orderByDesc('id'),
                 'sales' => fn (HasMany $query): HasMany => $query->with(['branch', 'user', 'receipt'])->orderByDesc('sale_date')->orderByDesc('id'),
+                'gymClassEnrollments' => fn (HasMany $query): HasMany => $query->with('gymClassSchedule.gymClass.branch')->orderByDesc('enrollment_date')->orderByDesc('id'),
             ]),
         ]);
     }

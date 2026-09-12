@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Client;
 use App\Models\ClientMembership;
+use App\Models\GymClassEnrollment;
+use App\Models\GymClassSchedule;
 use App\Models\MembershipType;
 use App\Models\Payment;
 use App\Models\Sale;
@@ -19,6 +21,19 @@ class DashboardController extends Controller
 {
     public function __invoke(): View
     {
+        $today = now();
+        $todaySchedules = GymClassSchedule::query()
+            ->with('gymClass')
+            ->withCount([
+                'enrollments as enrolled_today_count' => fn ($query) => $query
+                    ->whereDate('enrollment_date', $today)
+                    ->capacityBlocking(),
+            ])
+            ->where('is_active', true)
+            ->where('day_of_week', strtolower($today->englishDayOfWeek))
+            ->whereHas('gymClass', fn ($query) => $query->where('is_active', true))
+            ->get();
+
         return view('dashboard', [
             'statistics' => [
                 ['label' => 'Sucursales activas', 'value' => Branch::query()->where('is_active', true)->count()],
@@ -29,6 +44,10 @@ class DashboardController extends Controller
                 ['label' => 'Pagos cobrados hoy', 'value' => Payment::query()->where('status', PaymentStatus::Paid)->whereDate('payment_date', today())->count()],
                 ['label' => 'Ventas completadas hoy', 'value' => Sale::query()->where('status', SaleStatus::Completed)->whereDate('sale_date', today())->count()],
                 ['label' => 'Renovaciones recientes', 'value' => ClientMembership::query()->whereHas('payments')->where('created_at', '>=', now()->subDays(7))->count()],
+                ['label' => 'Clases de hoy', 'value' => $todaySchedules->count()],
+                ['label' => 'Participantes inscritos hoy', 'value' => GymClassEnrollment::query()->capacityBlocking()->whereDate('enrollment_date', $today)->count()],
+                ['label' => 'Clases llenas', 'value' => $todaySchedules->filter(fn (GymClassSchedule $schedule): bool => $schedule->enrolled_today_count >= $schedule->gymClass->maximum_capacity)->count()],
+                ['label' => 'Cupos disponibles hoy', 'value' => $todaySchedules->sum(fn (GymClassSchedule $schedule): int => max(0, $schedule->gymClass->maximum_capacity - $schedule->enrolled_today_count))],
             ],
         ]);
     }

@@ -44,6 +44,15 @@
                     @can('sales.view')
                         <a href="{{ route('sales.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('sales.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('sales.*')])>Ventas</a>
                     @endcan
+                    @can('classes.view')
+                        <a href="{{ route('gym-classes.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('gym-classes.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('gym-classes.*')])>Clases</a>
+                    @endcan
+                    @can('schedules.view')
+                        <a href="{{ route('class-schedules.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('class-schedules.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('class-schedules.*')])>Horarios</a>
+                    @endcan
+                    @can('enrollments.view')
+                        <a href="{{ route('class-enrollments.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('class-enrollments.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('class-enrollments.*')])>Participantes</a>
+                    @endcan
                 </nav>
             </aside>
 

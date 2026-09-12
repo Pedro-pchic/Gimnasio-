@@ -39,7 +39,11 @@ class DashboardControllerTest extends TestCase
             ->assertSee('Servicios activos')
             ->assertSee('Pagos cobrados hoy')
             ->assertSee('Ventas completadas hoy')
-            ->assertSee('Renovaciones recientes');
+            ->assertSee('Renovaciones recientes')
+            ->assertSee('Clases de hoy')
+            ->assertSee('Participantes inscritos hoy')
+            ->assertSee('Clases llenas')
+            ->assertSee('Cupos disponibles hoy');
     }
 
     private function administrativeUser(): User

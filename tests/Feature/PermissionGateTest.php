@@ -39,24 +39,24 @@ class PermissionGateTest extends TestCase
     {
         return [
             'Administrador general' => [
-                'allowed' => ['dashboard.view', 'branches.manage', 'benefits.manage', 'client-memberships.manage', 'payments.manage', 'sales.manage', 'renewals.manage'],
+                'allowed' => ['dashboard.view', 'branches.manage', 'benefits.manage', 'client-memberships.manage', 'payments.manage', 'sales.manage', 'renewals.manage', 'classes.manage', 'schedules.manage', 'enrollments.register', 'enrollments.attendance'],
                 'denied' => [],
             ],
             'Gerente de sucursal' => [
-                'allowed' => ['branches.view', 'services.manage', 'clients.manage', 'membership-types.manage', 'benefits.view', 'payments.manage', 'sales.manage', 'renewals.manage'],
+                'allowed' => ['branches.view', 'services.manage', 'clients.manage', 'membership-types.manage', 'benefits.view', 'payments.manage', 'sales.manage', 'renewals.manage', 'classes.manage', 'schedules.manage', 'enrollments.register', 'enrollments.attendance'],
                 'denied' => ['branches.manage', 'benefits.manage'],
             ],
             'Recepcionista' => [
-                'allowed' => ['clients.manage', 'membership-types.view', 'client-memberships.manage', 'payments.manage', 'sales.manage', 'renewals.manage'],
-                'denied' => ['branches.view', 'services.manage', 'benefits.view'],
+                'allowed' => ['clients.manage', 'membership-types.view', 'client-memberships.manage', 'payments.manage', 'sales.manage', 'renewals.manage', 'classes.view', 'schedules.view', 'enrollments.view', 'enrollments.register'],
+                'denied' => ['branches.view', 'services.manage', 'benefits.view', 'classes.manage', 'schedules.manage', 'enrollments.attendance'],
             ],
             'Supervisor' => [
-                'allowed' => ['branches.view', 'services.view', 'clients.view', 'client-memberships.view', 'payments.view', 'sales.view', 'renewals.view'],
-                'denied' => ['clients.manage', 'membership-types.manage', 'payments.manage', 'sales.manage', 'renewals.manage'],
+                'allowed' => ['branches.view', 'services.view', 'clients.view', 'client-memberships.view', 'payments.view', 'sales.view', 'renewals.view', 'classes.view', 'schedules.view', 'enrollments.view', 'enrollments.attendance'],
+                'denied' => ['clients.manage', 'membership-types.manage', 'payments.manage', 'sales.manage', 'renewals.manage', 'classes.manage', 'schedules.manage', 'enrollments.register'],
             ],
             'Instructor / Coach' => [
-                'allowed' => ['dashboard.view', 'services.view', 'clients.view'],
-                'denied' => ['clients.manage', 'branches.view', 'client-memberships.view', 'payments.view', 'sales.view', 'renewals.view'],
+                'allowed' => ['dashboard.view', 'services.view', 'clients.view', 'classes.view', 'schedules.view', 'enrollments.view', 'enrollments.attendance'],
+                'denied' => ['clients.manage', 'branches.view', 'client-memberships.view', 'payments.view', 'sales.view', 'renewals.view', 'classes.manage', 'schedules.manage', 'enrollments.register'],
             ],
         ];
     }

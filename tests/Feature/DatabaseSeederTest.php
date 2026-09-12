@@ -5,6 +5,9 @@ namespace Tests\Feature;
 use App\Models\Benefit;
 use App\Models\Branch;
 use App\Models\Client;
+use App\Models\GymClass;
+use App\Models\GymClassEnrollment;
+use App\Models\GymClassSchedule;
 use App\Models\MembershipType;
 use App\Models\Role;
 use App\Models\Service;
@@ -28,11 +31,18 @@ class DatabaseSeederTest extends TestCase
         $role = Role::query()->where('name', 'Administrador general')->firstOrFail();
         $service = Service::query()->where('name', 'Gimnasio')->firstOrFail();
         $user = User::query()->where('email', 'test@example.com')->firstOrFail();
+        $swimming = GymClass::query()->where('name', 'Natación principiantes')->firstOrFail();
+        $swimmingSchedule = GymClassSchedule::query()->where('gym_class_id', $swimming->getKey())->firstOrFail();
+        $swimmingEnrollment = GymClassEnrollment::query()
+            ->where('client_id', $client->getKey())
+            ->where('gym_class_schedule_id', $swimmingSchedule->getKey())
+            ->firstOrFail();
 
         $this->assertModelExists($branch);
         $this->assertModelExists($client);
         $this->assertModelExists($benefit);
         $this->assertModelExists($user);
+        $this->assertModelExists($swimming);
         $this->assertDatabaseHas('permissions', ['name' => 'dashboard.view']);
         $this->assertDatabaseHas('branch_service', [
             'branch_id' => $branch->getKey(),
@@ -51,5 +61,7 @@ class DatabaseSeederTest extends TestCase
             'role_id' => $role->getKey(),
             'user_id' => $user->getKey(),
         ]);
+        $this->assertSame('2026-09-14', $swimmingEnrollment->enrollment_date->toDateString());
+        $this->assertSame('enrolled', $swimmingEnrollment->status->value);
     }
 }

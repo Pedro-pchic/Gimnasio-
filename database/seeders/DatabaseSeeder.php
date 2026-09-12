@@ -7,6 +7,8 @@ use App\Models\Benefit;
 use App\Models\Branch;
 use App\Models\Client;
 use App\Models\ClientMembership;
+use App\Models\GymClassEnrollment;
+use App\Models\GymClassSchedule;
 use App\Models\MembershipType;
 use App\Models\Role;
 use App\Models\Service;
@@ -103,6 +105,21 @@ class DatabaseSeeder extends Seeder
                 'status' => ClientMembershipStatus::Active,
                 'observations' => 'Membresía inicial de demostración.',
             ],
+        );
+
+        $this->call(GymClassSeeder::class);
+
+        $swimmingSchedule = GymClassSchedule::query()
+            ->whereHas('gymClass', fn ($query) => $query->where('name', 'Natación principiantes'))
+            ->firstOrFail();
+
+        GymClassEnrollment::query()->firstOrCreate(
+            [
+                'client_id' => $client->getKey(),
+                'gym_class_schedule_id' => $swimmingSchedule->getKey(),
+                'enrollment_date' => '2026-09-14',
+            ],
+            ['status' => 'enrolled'],
         );
     }
 }

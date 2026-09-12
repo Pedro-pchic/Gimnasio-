@@ -6,6 +6,9 @@ use App\Http\Controllers\Web\BranchController;
 use App\Http\Controllers\Web\ClientController;
 use App\Http\Controllers\Web\ClientMembershipController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\GymClassController;
+use App\Http\Controllers\Web\GymClassEnrollmentController;
+use App\Http\Controllers\Web\GymClassScheduleController;
 use App\Http\Controllers\Web\MembershipTypeController;
 use App\Http\Controllers\Web\PaymentController;
 use App\Http\Controllers\Web\RenewalController;
@@ -55,4 +58,16 @@ Route::middleware('auth')->group(function (): void {
 
     Route::resource('renewals', RenewalController::class)->only(['index'])->middleware('can:renewals.view');
     Route::resource('renewals', RenewalController::class)->only(['create', 'store'])->middleware('can:renewals.manage');
+
+    Route::resource('gym-classes', GymClassController::class)->only(['index', 'show'])->middleware('can:classes.view');
+    Route::resource('gym-classes', GymClassController::class)->only(['create', 'store', 'edit', 'update'])->middleware('can:classes.manage');
+    Route::patch('/gym-classes/{gymClass}/status', [GymClassController::class, 'toggleStatus'])->middleware('can:classes.manage')->name('gym-classes.toggle-status');
+
+    Route::resource('class-schedules', GymClassScheduleController::class)->only(['index'])->middleware('can:schedules.view');
+    Route::resource('class-schedules', GymClassScheduleController::class)->only(['create', 'store', 'edit', 'update'])->middleware('can:schedules.manage');
+
+    Route::resource('class-enrollments', GymClassEnrollmentController::class)->only(['index', 'show'])->middleware('can:enrollments.view');
+    Route::resource('class-enrollments', GymClassEnrollmentController::class)->only(['create', 'store'])->middleware('can:enrollments.register');
+    Route::patch('/class-enrollments/{classEnrollment}/cancel', [GymClassEnrollmentController::class, 'cancel'])->middleware('can:enrollments.register')->name('class-enrollments.cancel');
+    Route::patch('/class-enrollments/{classEnrollment}/attendance', [GymClassEnrollmentController::class, 'markAttendance'])->middleware('can:enrollments.attendance')->name('class-enrollments.attendance');
 });

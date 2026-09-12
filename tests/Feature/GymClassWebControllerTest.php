@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Branch;
+use App\Models\Employee;
 use App\Models\GymClass;
+use App\Models\Position;
 use App\Models\Role;
 use App\Models\Service;
 use App\Models\User;
@@ -105,6 +107,29 @@ class GymClassWebControllerTest extends TestCase
                 'maximum_capacity' => 10,
             ])
             ->assertForbidden();
+    }
+
+    public function test_manager_assigns_an_active_employee_instructor_to_a_class(): void
+    {
+        $user = $this->userWithRole('Gerente de sucursal');
+        $branch = Branch::factory()->create();
+        $instructor = Employee::factory()
+            ->for($branch)
+            ->for(Position::factory()->canTeach())
+            ->create();
+
+        $response = $this->actingAs($user)->post('/gym-classes', [
+            'branch_id' => $branch->id,
+            'instructor_employee_id' => $instructor->id,
+            'name' => 'Movilidad guiada',
+            'type' => 'general',
+            'maximum_capacity' => 12,
+        ]);
+        $gymClass = GymClass::query()->where('name', 'Movilidad guiada')->firstOrFail();
+
+        $response->assertRedirectToRoute('gym-classes.show', $gymClass);
+        $this->assertSame($instructor->id, $gymClass->instructor_employee_id);
+        $this->assertSame($instructor->id, $gymClass->instructor->id);
     }
 
     private function userWithRole(string $roleName): User

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['sale_id', 'concept_type', 'concept_reference_id', 'description', 'quantity', 'unit_price', 'subtotal'])]
+#[Fillable(['sale_id', 'concept_type', 'concept_reference_id', 'description', 'quantity', 'unit_price', 'discount', 'subtotal'])]
 class SaleDetail extends Model
 {
     /** @use HasFactory<SaleDetailFactory> */
@@ -28,6 +28,7 @@ class SaleDetail extends Model
         return [
             'quantity' => 'decimal:2',
             'unit_price' => 'decimal:2',
+            'discount' => 'decimal:2',
             'subtotal' => 'decimal:2',
             'concept_type' => SaleDetailType::class,
         ];

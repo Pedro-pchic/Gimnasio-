@@ -32,6 +32,15 @@
                     @can('benefits.view')
                         <a href="{{ route('benefits.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('benefits.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('benefits.*')])>Beneficios</a>
                     @endcan
+                    @can('commercial-partners.view')
+                        <a href="{{ route('commercial-partners.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('commercial-partners.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('commercial-partners.*')])>Terceros</a>
+                    @endcan
+                    @can('third-party-items.view')
+                        <a href="{{ route('third-party-items.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('third-party-items.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('third-party-items.*')])>Productos externos</a>
+                    @endcan
+                    @can('discounts.view')
+                        <a href="{{ route('discounts.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('discounts.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('discounts.*')])>Descuentos</a>
+                    @endcan
                     @can('client-memberships.view')
                         <a href="{{ route('client-memberships.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('client-memberships.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('client-memberships.*')])>Membresías de clientes</a>
                     @endcan
@@ -43,6 +52,18 @@
                     @endcan
                     @can('sales.view')
                         <a href="{{ route('sales.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('sales.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('sales.*')])>Ventas</a>
+                    @endcan
+                    @can('employees.view')
+                        <a href="{{ route('employees.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('employees.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('employees.*')])>Empleados</a>
+                    @endcan
+                    @can('positions.manage')
+                        <a href="{{ route('positions.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('positions.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('positions.*')])>Puestos</a>
+                    @endcan
+                    @can('work-shifts.manage')
+                        <a href="{{ route('work-shifts.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('work-shifts.*', 'employee-shift-assignments.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('work-shifts.*', 'employee-shift-assignments.*')])>Turnos</a>
+                    @endcan
+                    @can('employee-attendances.view')
+                        <a href="{{ route('employee-attendances.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('employee-attendances.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('employee-attendances.*')])>Asistencia</a>
                     @endcan
                     @can('classes.view')
                         <a href="{{ route('gym-classes.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('gym-classes.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('gym-classes.*')])>Clases</a>

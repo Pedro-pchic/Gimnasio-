@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Str;
 
-#[Fillable(['branch_id', 'name', 'description', 'type', 'maximum_capacity', 'is_active'])]
+#[Fillable(['branch_id', 'instructor_employee_id', 'name', 'description', 'type', 'maximum_capacity', 'is_active'])]
 class GymClass extends Model
 {
     /** @use HasFactory<GymClassFactory> */
@@ -20,6 +20,11 @@ class GymClass extends Model
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
+    }
+
+    public function instructor(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class, 'instructor_employee_id');
     }
 
     public function schedules(): HasMany

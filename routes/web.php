@@ -5,15 +5,23 @@ use App\Http\Controllers\Web\BenefitController;
 use App\Http\Controllers\Web\BranchController;
 use App\Http\Controllers\Web\ClientController;
 use App\Http\Controllers\Web\ClientMembershipController;
+use App\Http\Controllers\Web\CommercialPartnerController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\DiscountController;
+use App\Http\Controllers\Web\EmployeeAttendanceController;
+use App\Http\Controllers\Web\EmployeeController;
+use App\Http\Controllers\Web\EmployeeShiftAssignmentController;
 use App\Http\Controllers\Web\GymClassController;
 use App\Http\Controllers\Web\GymClassEnrollmentController;
 use App\Http\Controllers\Web\GymClassScheduleController;
 use App\Http\Controllers\Web\MembershipTypeController;
 use App\Http\Controllers\Web\PaymentController;
+use App\Http\Controllers\Web\PositionController;
 use App\Http\Controllers\Web\RenewalController;
 use App\Http\Controllers\Web\SaleController;
 use App\Http\Controllers\Web\ServiceController;
+use App\Http\Controllers\Web\ThirdPartyItemController;
+use App\Http\Controllers\Web\WorkShiftController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AuthenticatedSessionController::class, 'create'])->name('home');
@@ -44,6 +52,15 @@ Route::middleware('auth')->group(function (): void {
     Route::resource('benefits', BenefitController::class)->except(['index', 'show'])->middleware('can:benefits.manage');
     Route::patch('/benefits/{benefit}/status', [BenefitController::class, 'toggleStatus'])->middleware('can:benefits.manage')->name('benefits.toggle-status');
 
+    Route::resource('commercial-partners', CommercialPartnerController::class)->except(['index', 'show'])->middleware('can:commercial-partners.manage');
+    Route::resource('commercial-partners', CommercialPartnerController::class)->only(['index', 'show'])->middleware('can:commercial-partners.view');
+
+    Route::resource('third-party-items', ThirdPartyItemController::class)->except(['index', 'show'])->middleware('can:third-party-items.manage');
+    Route::resource('third-party-items', ThirdPartyItemController::class)->only(['index', 'show'])->middleware('can:third-party-items.view');
+
+    Route::resource('discounts', DiscountController::class)->except(['index', 'show'])->middleware('can:discounts.manage');
+    Route::resource('discounts', DiscountController::class)->only(['index', 'show'])->middleware('can:discounts.view');
+
     Route::resource('client-memberships', ClientMembershipController::class)->only(['index', 'show'])->middleware('can:client-memberships.view');
     Route::resource('client-memberships', ClientMembershipController::class)->except(['index', 'show'])->middleware('can:client-memberships.manage');
 
@@ -51,13 +68,30 @@ Route::middleware('auth')->group(function (): void {
     Route::resource('payments', PaymentController::class)->only(['create', 'store'])->middleware('can:payments.manage');
     Route::patch('/payments/{payment}/cancel', [PaymentController::class, 'cancel'])->middleware('can:payments.manage')->name('payments.cancel');
 
+    Route::resource('sales', SaleController::class)->only(['create', 'store'])->middleware('can:sales.manage');
     Route::resource('sales', SaleController::class)->only(['index', 'show'])->middleware('can:sales.view');
     Route::get('/sales/{sale}/receipt', [SaleController::class, 'receipt'])->middleware('can:sales.view')->name('sales.receipt');
-    Route::resource('sales', SaleController::class)->only(['create', 'store'])->middleware('can:sales.manage');
     Route::patch('/sales/{sale}/cancel', [SaleController::class, 'cancel'])->middleware('can:sales.manage')->name('sales.cancel');
 
     Route::resource('renewals', RenewalController::class)->only(['index'])->middleware('can:renewals.view');
     Route::resource('renewals', RenewalController::class)->only(['create', 'store'])->middleware('can:renewals.manage');
+
+    Route::resource('positions', PositionController::class)->only(['index', 'create', 'store', 'edit', 'update'])->middleware('can:positions.manage');
+    Route::patch('/positions/{position}/status', [PositionController::class, 'toggleStatus'])->middleware('can:positions.manage')->name('positions.toggle-status');
+
+    Route::resource('employees', EmployeeController::class)->only(['index', 'show'])->middleware('can:employees.view');
+    Route::resource('employees', EmployeeController::class)->only(['create', 'store', 'edit', 'update'])->middleware('can:employees.manage');
+    Route::patch('/employees/{employee}/status', [EmployeeController::class, 'toggleStatus'])->middleware('can:employees.manage')->name('employees.toggle-status');
+
+    Route::resource('work-shifts', WorkShiftController::class)->only(['index', 'create', 'store', 'edit', 'update'])->middleware('can:work-shifts.manage');
+    Route::patch('/work-shifts/{workShift}/status', [WorkShiftController::class, 'toggleStatus'])->middleware('can:work-shifts.manage')->name('work-shifts.toggle-status');
+
+    Route::resource('employee-shift-assignments', EmployeeShiftAssignmentController::class)->only(['index', 'create', 'store', 'edit', 'update'])->middleware('can:work-shifts.manage');
+    Route::patch('/employee-shift-assignments/{employeeShiftAssignment}/status', [EmployeeShiftAssignmentController::class, 'toggleStatus'])->middleware('can:work-shifts.manage')->name('employee-shift-assignments.toggle-status');
+
+    Route::resource('employee-attendances', EmployeeAttendanceController::class)->only(['index', 'show'])->middleware('can:employee-attendances.view');
+    Route::resource('employee-attendances', EmployeeAttendanceController::class)->only(['create', 'store'])->middleware('can:employee-attendances.register');
+    Route::patch('/employee-attendances/{employeeAttendance}/checkout', [EmployeeAttendanceController::class, 'checkOut'])->middleware('can:employee-attendances.register')->name('employee-attendances.checkout');
 
     Route::resource('gym-classes', GymClassController::class)->only(['index', 'show'])->middleware('can:classes.view');
     Route::resource('gym-classes', GymClassController::class)->only(['create', 'store', 'edit', 'update'])->middleware('can:classes.manage');

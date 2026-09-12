@@ -20,6 +20,16 @@ class Branch extends Model
         return $this->belongsToMany(Service::class)->withTimestamps();
     }
 
+    public function thirdPartyItems(): BelongsToMany
+    {
+        return $this->belongsToMany(ThirdPartyItem::class)->withTimestamps();
+    }
+
+    public function discounts(): BelongsToMany
+    {
+        return $this->belongsToMany(Discount::class)->withTimestamps();
+    }
+
     public function clients(): HasMany
     {
         return $this->hasMany(Client::class);
@@ -33,6 +43,11 @@ class Branch extends Model
     public function gymClasses(): HasMany
     {
         return $this->hasMany(GymClass::class);
+    }
+
+    public function employees(): HasMany
+    {
+        return $this->hasMany(Employee::class);
     }
 
     /**

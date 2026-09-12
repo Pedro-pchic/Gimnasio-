@@ -36,9 +36,9 @@ class StoreSaleRequest extends FormRequest
             'details' => ['required', 'array', 'min:1'],
             'details.*.concept_type' => ['required', Rule::enum(SaleDetailType::class)],
             'details.*.concept_reference_id' => ['nullable', 'integer', 'min:1'],
-            'details.*.description' => ['required', 'string', 'max:255'],
+            'details.*.description' => ['nullable', 'string', 'max:255'],
             'details.*.quantity' => ['required', 'numeric', 'gt:0'],
-            'details.*.unit_price' => ['required', 'numeric', 'min:0'],
+            'details.*.unit_price' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 
@@ -49,7 +49,7 @@ class StoreSaleRequest extends FormRequest
     {
         return [
             function (Validator $validator): void {
-                if ($validator->errors()->hasAny(['discount', 'details'])) {
+                if ($validator->errors()->has('details')) {
                     return;
                 }
 
@@ -59,16 +59,28 @@ class StoreSaleRequest extends FormRequest
                     return;
                 }
 
-                $subtotal = collect($details)->sum(function (mixed $detail): float {
+                foreach ($details as $index => $detail) {
                     if (! is_array($detail)) {
-                        return 0;
+                        continue;
                     }
 
-                    return (float) ($detail['quantity'] ?? 0) * (float) ($detail['unit_price'] ?? 0);
-                });
+                    $conceptType = $detail['concept_type'] ?? null;
 
-                if ((float) $this->input('discount', 0) > $subtotal) {
-                    $validator->errors()->add('discount', 'El descuento no puede superar el subtotal de la venta.');
+                    if (in_array($conceptType, SaleDetailType::thirdPartyValues(), true)) {
+                        if (empty($detail['concept_reference_id'])) {
+                            $validator->errors()->add("details.{$index}.concept_reference_id", 'Selecciona un producto o servicio externo.');
+                        }
+
+                        continue;
+                    }
+
+                    if (blank($detail['description'] ?? null)) {
+                        $validator->errors()->add("details.{$index}.description", 'La descripción es obligatoria para los conceptos manuales.');
+                    }
+
+                    if (! array_key_exists('unit_price', $detail) || $detail['unit_price'] === null || $detail['unit_price'] === '') {
+                        $validator->errors()->add("details.{$index}.unit_price", 'El precio unitario es obligatorio para los conceptos manuales.');
+                    }
                 }
             },
         ];

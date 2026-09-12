@@ -30,6 +30,10 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             ServiceSeeder::class,
             MembershipTypeSeeder::class,
+            PositionSeeder::class,
+            WorkShiftSeeder::class,
+            CommercialPartnerSeeder::class,
+            DiscountSeeder::class,
         ]);
 
         $user = User::query()->firstOrCreate(
@@ -59,6 +63,8 @@ class DatabaseSeeder extends Seeder
                 ->pluck('id')
                 ->all(),
         );
+
+        $this->call(ThirdPartyItemSeeder::class);
 
         $membershipType = MembershipType::query()
             ->where('name', 'Premium')
@@ -108,18 +114,25 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->call(GymClassSeeder::class);
+        $this->call(EmployeeSeeder::class);
 
         $swimmingSchedule = GymClassSchedule::query()
             ->whereHas('gymClass', fn ($query) => $query->where('name', 'Natación principiantes'))
             ->firstOrFail();
 
-        GymClassEnrollment::query()->firstOrCreate(
-            [
+        $swimmingEnrollment = GymClassEnrollment::query()
+            ->where('client_id', $client->getKey())
+            ->where('gym_class_schedule_id', $swimmingSchedule->getKey())
+            ->whereDate('enrollment_date', '2026-09-14')
+            ->first();
+
+        if ($swimmingEnrollment === null) {
+            GymClassEnrollment::query()->create([
                 'client_id' => $client->getKey(),
                 'gym_class_schedule_id' => $swimmingSchedule->getKey(),
                 'enrollment_date' => '2026-09-14',
-            ],
-            ['status' => 'enrolled'],
-        );
+                'status' => 'enrolled',
+            ]);
+        }
     }
 }

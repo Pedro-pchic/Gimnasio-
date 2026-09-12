@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Api\V1;
 
+use App\EmployeeStatus;
 use App\Models\Branch;
+use App\Models\Employee;
 use App\Models\GymClass;
 use App\Models\Service;
 use Illuminate\Foundation\Http\FormRequest;
@@ -28,6 +30,7 @@ class StoreGymClassRequest extends FormRequest
     {
         return [
             'branch_id' => ['required', 'integer', Rule::exists('branches', 'id')],
+            'instructor_employee_id' => ['nullable', 'integer', Rule::exists('employees', 'id')],
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'type' => ['required', 'string', 'max:50'],
@@ -61,6 +64,25 @@ class StoreGymClassRequest extends FormRequest
 
                 if (! $hasCompatibleService) {
                     $validator->errors()->add('branch_id', 'La sucursal no tiene el servicio compatible con esta actividad.');
+                }
+            },
+            function (Validator $validator): void {
+                if ($validator->errors()->hasAny(['branch_id', 'instructor_employee_id']) || $this->integer('instructor_employee_id') === 0) {
+                    return;
+                }
+
+                $instructor = Employee::query()->with('position')->find($this->integer('instructor_employee_id'));
+
+                if ($instructor === null) {
+                    return;
+                }
+
+                if ($instructor->status !== EmployeeStatus::Active || ! $instructor->position->is_active || ! $instructor->position->can_teach) {
+                    $validator->errors()->add('instructor_employee_id', 'El instructor seleccionado debe estar activo y habilitado para impartir clases.');
+                }
+
+                if ($instructor->branch_id !== $this->integer('branch_id')) {
+                    $validator->errors()->add('instructor_employee_id', 'El instructor debe pertenecer a la sucursal de la actividad.');
                 }
             },
         ];

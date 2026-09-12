@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreGymClassRequest;
 use App\Http\Requests\Api\V1\UpdateGymClassRequest;
 use App\Models\Branch;
+use App\Models\Employee;
 use App\Models\GymClass;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -23,7 +24,7 @@ class GymClassController extends Controller
     {
         return view('gym-classes.index', [
             'gymClasses' => GymClass::query()
-                ->with('branch')
+                ->with(['branch', 'instructor.position'])
                 ->withCount('schedules')
                 ->orderBy('name')
                 ->orderBy('id')
@@ -59,6 +60,7 @@ class GymClassController extends Controller
         return view('gym-classes.show', [
             'gymClass' => $gymClass->load([
                 'branch',
+                'instructor.position',
                 'schedules' => fn (HasMany $query): HasMany => $query
                     ->withCount([
                         'enrollments as enrolled_today_count' => fn (Builder $query): Builder => $query
@@ -110,6 +112,14 @@ class GymClassController extends Controller
         return view('gym-classes.form', [
             'gymClass' => $gymClass,
             'branches' => Branch::query()->with('services')->orderBy('name')->orderBy('id')->get(),
+            'instructors' => Employee::query()
+                ->active()
+                ->whereHas('position', fn (Builder $query): Builder => $query->where('is_active', true)->where('can_teach', true))
+                ->with(['branch', 'position'])
+                ->orderBy('last_name')
+                ->orderBy('first_name')
+                ->orderBy('id')
+                ->get(),
         ]);
     }
 }

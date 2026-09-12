@@ -35,6 +35,15 @@
                     @can('client-memberships.view')
                         <a href="{{ route('client-memberships.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('client-memberships.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('client-memberships.*')])>Membresías de clientes</a>
                     @endcan
+                    @can('renewals.view')
+                        <a href="{{ route('renewals.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('renewals.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('renewals.*')])>Renovaciones</a>
+                    @endcan
+                    @can('payments.view')
+                        <a href="{{ route('payments.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('payments.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('payments.*')])>Pagos</a>
+                    @endcan
+                    @can('sales.view')
+                        <a href="{{ route('sales.index') }}" @class(['rounded-lg px-3 py-2 text-sm font-medium', 'bg-slate-700 text-white' => request()->routeIs('sales.*'), 'text-slate-300 hover:bg-slate-800 hover:text-white' => ! request()->routeIs('sales.*')])>Ventas</a>
+                    @endcan
                 </nav>
             </aside>
 

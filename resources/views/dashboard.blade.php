@@ -9,7 +9,7 @@
         <p class="mt-2 text-slate-600">Información actual registrada en el sistema.</p>
     </div>
 
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @foreach ($statistics as $statistic)
             <article class="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
                 <p class="text-sm font-medium text-slate-600">{{ $statistic['label'] }}</p>

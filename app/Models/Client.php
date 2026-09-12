@@ -25,6 +25,16 @@ class Client extends Model
         return $this->hasMany(ClientMembership::class);
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function sales(): HasMany
+    {
+        return $this->hasMany(Sale::class);
+    }
+
     /**
      * @return array<string, string>
      */

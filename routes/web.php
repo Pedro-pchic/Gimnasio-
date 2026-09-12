@@ -7,6 +7,9 @@ use App\Http\Controllers\Web\ClientController;
 use App\Http\Controllers\Web\ClientMembershipController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\MembershipTypeController;
+use App\Http\Controllers\Web\PaymentController;
+use App\Http\Controllers\Web\RenewalController;
+use App\Http\Controllers\Web\SaleController;
 use App\Http\Controllers\Web\ServiceController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,4 +43,16 @@ Route::middleware('auth')->group(function (): void {
 
     Route::resource('client-memberships', ClientMembershipController::class)->only(['index', 'show'])->middleware('can:client-memberships.view');
     Route::resource('client-memberships', ClientMembershipController::class)->except(['index', 'show'])->middleware('can:client-memberships.manage');
+
+    Route::resource('payments', PaymentController::class)->only(['index', 'show'])->middleware('can:payments.view');
+    Route::resource('payments', PaymentController::class)->only(['create', 'store'])->middleware('can:payments.manage');
+    Route::patch('/payments/{payment}/cancel', [PaymentController::class, 'cancel'])->middleware('can:payments.manage')->name('payments.cancel');
+
+    Route::resource('sales', SaleController::class)->only(['index', 'show'])->middleware('can:sales.view');
+    Route::get('/sales/{sale}/receipt', [SaleController::class, 'receipt'])->middleware('can:sales.view')->name('sales.receipt');
+    Route::resource('sales', SaleController::class)->only(['create', 'store'])->middleware('can:sales.manage');
+    Route::patch('/sales/{sale}/cancel', [SaleController::class, 'cancel'])->middleware('can:sales.manage')->name('sales.cancel');
+
+    Route::resource('renewals', RenewalController::class)->only(['index'])->middleware('can:renewals.view');
+    Route::resource('renewals', RenewalController::class)->only(['create', 'store'])->middleware('can:renewals.manage');
 });

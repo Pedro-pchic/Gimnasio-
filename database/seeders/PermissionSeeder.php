@@ -14,6 +14,12 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
+            'payments.view' => 'Consultar pagos.',
+            'payments.manage' => 'Registrar y cancelar pagos.',
+            'sales.view' => 'Consultar ventas y comprobantes internos.',
+            'sales.manage' => 'Registrar y cancelar ventas.',
+            'renewals.view' => 'Consultar renovaciones.',
+            'renewals.manage' => 'Registrar renovaciones con pago.',
             'dashboard.view' => 'Consultar el panel principal.',
             'branches.view' => 'Consultar sucursales.',
             'branches.manage' => 'Gestionar sucursales y sus servicios.',
@@ -52,6 +58,12 @@ class PermissionSeeder extends Seeder
                 'benefits.view',
                 'client-memberships.view',
                 'client-memberships.manage',
+                'payments.view',
+                'payments.manage',
+                'sales.view',
+                'sales.manage',
+                'renewals.view',
+                'renewals.manage',
             ],
             'Recepcionista' => [
                 'dashboard.view',
@@ -60,6 +72,12 @@ class PermissionSeeder extends Seeder
                 'membership-types.view',
                 'client-memberships.view',
                 'client-memberships.manage',
+                'payments.view',
+                'payments.manage',
+                'sales.view',
+                'sales.manage',
+                'renewals.view',
+                'renewals.manage',
             ],
             'Supervisor' => [
                 'dashboard.view',
@@ -68,6 +86,9 @@ class PermissionSeeder extends Seeder
                 'clients.view',
                 'membership-types.view',
                 'client-memberships.view',
+                'payments.view',
+                'sales.view',
+                'renewals.view',
             ],
             'Instructor / Coach' => [
                 'dashboard.view',

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['client_id', 'membership_type_id', 'start_date', 'end_date', 'applied_price', 'status', 'observations'])]
 class ClientMembership extends Model
@@ -23,6 +24,11 @@ class ClientMembership extends Model
     public function membershipType(): BelongsTo
     {
         return $this->belongsTo(MembershipType::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 
     /**

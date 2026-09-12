@@ -43,6 +43,8 @@ class ClientController extends Controller
             'client' => $client->load([
                 'branch',
                 'memberships' => fn (HasMany $query): HasMany => $query->with('membershipType')->orderByDesc('start_date')->orderByDesc('id'),
+                'payments' => fn (HasMany $query): HasMany => $query->with(['user', 'sale.receipt', 'clientMembership.membershipType'])->orderByDesc('payment_date')->orderByDesc('id'),
+                'sales' => fn (HasMany $query): HasMany => $query->with(['branch', 'user', 'receipt'])->orderByDesc('sale_date')->orderByDesc('id'),
             ]),
         ]);
     }

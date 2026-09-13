@@ -1,0 +1,31 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Client;
+use App\Models\Referral;
+use App\ReferralRewardStatus;
+use App\ReferralStatus;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<Referral>
+ */
+class ReferralFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'referrer_client_id' => Client::factory(),
+            'referred_client_id' => Client::factory(),
+            'status' => ReferralStatus::Pending,
+            'reward_amount' => 100,
+            'reward_status' => ReferralRewardStatus::Pending,
+        ];
+    }
+}

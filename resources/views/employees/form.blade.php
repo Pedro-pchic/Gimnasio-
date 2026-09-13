@@ -1,0 +1,25 @@
+@extends('layouts.admin')
+
+@section('title', $employee ? 'Editar empleado' : 'Nuevo empleado')
+
+@section('content')
+    <div class="mb-6"><a href="{{ route('employees.index') }}" class="text-sm font-medium text-indigo-700 hover:text-indigo-500">Volver a empleados</a><h1 class="mt-3 text-3xl font-bold tracking-tight">{{ $employee ? 'Editar empleado' : 'Nuevo empleado' }}</h1></div>
+
+    <form method="POST" action="{{ $employee ? route('employees.update', $employee) : route('employees.store') }}" class="max-w-4xl rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-7">
+        @csrf
+        @if ($employee) @method('PUT') @endif
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div><label for="code" class="text-sm font-medium text-slate-700">Codigo interno</label><input id="code" name="code" value="{{ old('code', $employee?->code) }}" required class="mt-1 block w-full rounded-lg border-slate-300"><x-field-error name="code" /></div>
+            <div><label for="hired_at" class="text-sm font-medium text-slate-700">Fecha de contratacion</label><input id="hired_at" name="hired_at" type="date" value="{{ old('hired_at', $employee?->hired_at?->toDateString() ?? now()->toDateString()) }}" required class="mt-1 block w-full rounded-lg border-slate-300"><x-field-error name="hired_at" /></div>
+            <div><label for="first_name" class="text-sm font-medium text-slate-700">Nombres</label><input id="first_name" name="first_name" value="{{ old('first_name', $employee?->first_name) }}" required class="mt-1 block w-full rounded-lg border-slate-300"><x-field-error name="first_name" /></div>
+            <div><label for="last_name" class="text-sm font-medium text-slate-700">Apellidos</label><input id="last_name" name="last_name" value="{{ old('last_name', $employee?->last_name) }}" required class="mt-1 block w-full rounded-lg border-slate-300"><x-field-error name="last_name" /></div>
+            <div><label for="branch_id" class="text-sm font-medium text-slate-700">Sucursal principal</label><select id="branch_id" name="branch_id" required class="mt-1 block w-full rounded-lg border-slate-300"><option value="">Selecciona una sucursal</option>@foreach ($branches as $branch)<option value="{{ $branch->id }}" @selected((int) old('branch_id', $employee?->branch_id) === $branch->id)>{{ $branch->name }}</option>@endforeach</select><x-field-error name="branch_id" /></div>
+            <div><label for="position_id" class="text-sm font-medium text-slate-700">Puesto</label><select id="position_id" name="position_id" required class="mt-1 block w-full rounded-lg border-slate-300"><option value="">Selecciona un puesto</option>@foreach ($positions as $position)<option value="{{ $position->id }}" @selected((int) old('position_id', $employee?->position_id) === $position->id)>{{ $position->name }}{{ $position->is_active ? '' : ' (inactivo)' }}</option>@endforeach</select><x-field-error name="position_id" /></div>
+            <div><label for="phone" class="text-sm font-medium text-slate-700">Telefono</label><input id="phone" name="phone" value="{{ old('phone', $employee?->phone) }}" class="mt-1 block w-full rounded-lg border-slate-300"><x-field-error name="phone" /></div>
+            <div><label for="email" class="text-sm font-medium text-slate-700">Correo electronico</label><input id="email" name="email" type="email" value="{{ old('email', $employee?->email) }}" class="mt-1 block w-full rounded-lg border-slate-300"><x-field-error name="email" /></div>
+            <div class="sm:col-span-2"><label for="user_id" class="text-sm font-medium text-slate-700">Usuario asociado (opcional)</label><select id="user_id" name="user_id" class="mt-1 block w-full rounded-lg border-slate-300"><option value="">Sin cuenta de acceso</option>@foreach ($users as $user)<option value="{{ $user->id }}" @selected((int) old('user_id', $employee?->user_id) === $user->id)>{{ $user->name }} ({{ $user->email }})</option>@endforeach</select><p class="mt-1 text-xs text-slate-500">Crear un empleado no crea una cuenta de usuario.</p><x-field-error name="user_id" /></div>
+            <div><label for="status" class="text-sm font-medium text-slate-700">Estado</label><select id="status" name="status" required class="mt-1 block w-full rounded-lg border-slate-300"><option value="active" @selected(old('status', $employee?->status?->value ?? 'active') === 'active')>Activo</option><option value="inactive" @selected(old('status', $employee?->status?->value) === 'inactive')>Inactivo</option></select><x-field-error name="status" /></div>
+        </div>
+        <div class="mt-7 flex flex-wrap gap-3"><button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500">{{ $employee ? 'Guardar cambios' : 'Crear empleado' }}</button><a href="{{ $employee ? route('employees.show', $employee) : route('employees.index') }}" class="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancelar</a></div>
+    </form>
+@endsection

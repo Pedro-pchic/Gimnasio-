@@ -1,0 +1,4 @@
+@extends('layouts.admin')
+@section('content')
+<div class="space-y-6"><div class="flex justify-between"><h1 class="text-2xl font-semibold">Certificados de calidad</h1><a href="{{ route('quality-certificates.create') }}" class="rounded bg-indigo-600 px-4 py-2 text-white">Nuevo certificado</a></div><div class="rounded-lg bg-white p-4 shadow ring-1 ring-gray-200"><table class="min-w-full text-sm"><thead><tr><th class="text-left">Número</th><th class="text-left">Orden</th><th class="text-left">Vigencia</th><th class="text-left">Estado</th></tr></thead><tbody>@forelse($certificates as $certificate)<tr><td>{{ $certificate->number }}</td><td>#{{ $certificate->purchaseOrder->id }}</td><td>{{ $certificate->expires_at?->format('d/m/Y') ?: '—' }}</td><td>{{ ucfirst($certificate->status->value) }}</td></tr>@empty<tr><td colspan="4" class="py-6 text-center text-gray-500">Sin certificados.</td></tr>@endforelse</tbody></table></div></div>
+@endsection

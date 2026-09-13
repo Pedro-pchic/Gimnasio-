@@ -10,14 +10,18 @@ use App\Models\Client;
 use App\Models\Discount;
 use App\Models\Payment;
 use App\Models\Receipt;
+use App\Models\Referral;
 use App\Models\Sale;
 use App\Models\ThirdPartyItem;
 use App\PaymentMethod;
 use App\PaymentStatus;
+use App\ReferralRewardStatus;
+use App\ReferralStatus;
 use App\SaleDetailType;
 use App\SaleStatus;
 use App\ThirdPartyItemType;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -53,7 +57,13 @@ class SaleController extends Controller
             Gate::authorize('third-party-sales.manage');
         }
 
-        $sale = DB::transaction(function () use ($data, $request): Sale {
+        $requestedReferralCredit = round((float) ($data['referral_credit_amount'] ?? 0), 2);
+
+        if ($requestedReferralCredit > 0) {
+            Gate::authorize('referrals.apply-credit');
+        }
+
+        $sale = DB::transaction(function () use ($data, $request, $requestedReferralCredit): Sale {
             $details = $this->resolveDetails($data['details'], (int) $data['branch_id'], $data['sale_date']);
             $subtotal = round((float) $details->sum('subtotal'), 2);
             $discount = round((float) ($data['discount'] ?? 0), 2);
@@ -64,7 +74,20 @@ class SaleController extends Controller
                 ]);
             }
 
-            $total = round($subtotal - $discount, 2);
+            $totalBeforeReferralCredit = round($subtotal - $discount, 2);
+
+            if ($requestedReferralCredit > $totalBeforeReferralCredit) {
+                throw ValidationException::withMessages([
+                    'referral_credit_amount' => 'El crédito de referido no puede superar el total de la venta.',
+                ]);
+            }
+
+            $referralRewardUses = $this->resolveReferralRewardUses(
+                isset($data['client_id']) ? (int) $data['client_id'] : null,
+                $requestedReferralCredit,
+            );
+            $appliedReferralCredit = round((float) $referralRewardUses->sum('amount'), 2);
+            $total = round($totalBeforeReferralCredit - $appliedReferralCredit, 2);
 
             $sale = Sale::query()->create([
                 'client_id' => $data['client_id'] ?? null,
@@ -78,6 +101,20 @@ class SaleController extends Controller
             ]);
 
             $sale->details()->createMany($details->all());
+
+            foreach ($referralRewardUses as $referralRewardUse) {
+                /** @var Referral $referral */
+                $referral = $referralRewardUse['referral'];
+
+                $referral->rewardUses()->create([
+                    'sale_id' => $sale->getKey(),
+                    'amount' => $referralRewardUse['amount'],
+                ]);
+
+                if ($referralRewardUse['remaining_amount'] <= 0) {
+                    $referral->update(['reward_status' => ReferralRewardStatus::Used]);
+                }
+            }
 
             Payment::query()->create([
                 'client_id' => $data['client_id'] ?? null,
@@ -107,7 +144,7 @@ class SaleController extends Controller
     public function show(Sale $sale): View
     {
         return view('sales.show', [
-            'sale' => $sale->load(['client', 'branch', 'user', 'details', 'payments', 'receipt']),
+            'sale' => $sale->load(['client', 'branch', 'user', 'details', 'payments', 'receipt', 'referralRewardUses.referral']),
         ]);
     }
 
@@ -126,15 +163,36 @@ class SaleController extends Controller
     public function receipt(Sale $sale): View
     {
         return view('sales.receipt', [
-            'sale' => $sale->load(['client', 'branch', 'user', 'details', 'payments', 'receipt']),
+            'sale' => $sale->load(['client', 'branch', 'user', 'details', 'payments', 'receipt', 'referralRewardUses.referral']),
         ]);
     }
 
     private function formView(): View
     {
+        $clients = Client::query()
+            ->where('is_active', true)
+            ->with([
+                'referralsSent' => fn (HasMany $query): HasMany => $query
+                    ->where('status', ReferralStatus::Validated)
+                    ->where('reward_status', ReferralRewardStatus::Available)
+                    ->withSum('rewardUses as used_reward_amount', 'amount'),
+            ])
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->orderBy('id')
+            ->get();
+
+        $clients->each(function (Client $client): void {
+            $availableReferralCredit = $client->referralsSent->sum(
+                fn (Referral $referral): float => max(0, (float) $referral->reward_amount - (float) ($referral->used_reward_amount ?? 0)),
+            );
+
+            $client->setAttribute('available_referral_credit', round((float) $availableReferralCredit, 2));
+        });
+
         return view('sales.form', [
             'branches' => Branch::query()->where('is_active', true)->orderBy('name')->orderBy('id')->get(),
-            'clients' => Client::query()->where('is_active', true)->orderBy('last_name')->orderBy('first_name')->orderBy('id')->get(),
+            'clients' => $clients,
             'thirdPartyItems' => ThirdPartyItem::query()
                 ->with(['commercialPartner', 'branches'])
                 ->where('is_active', true)
@@ -144,6 +202,63 @@ class SaleController extends Controller
                 ->get(),
             'methods' => PaymentMethod::cases(),
         ]);
+    }
+
+    /**
+     * @return Collection<int, array{referral: Referral, amount: float, remaining_amount: float}>
+     */
+    private function resolveReferralRewardUses(?int $clientId, float $requestedReferralCredit): Collection
+    {
+        if ($requestedReferralCredit === 0.0) {
+            return collect();
+        }
+
+        if ($clientId === null) {
+            throw ValidationException::withMessages([
+                'client_id' => 'Selecciona el cliente que utilizará el crédito de referido.',
+            ]);
+        }
+
+        $remainingCreditToApply = $requestedReferralCredit;
+        $rewardUses = collect();
+        $referrals = Referral::query()
+            ->where('referrer_client_id', $clientId)
+            ->where('status', ReferralStatus::Validated)
+            ->where('reward_status', ReferralRewardStatus::Available)
+            ->lockForUpdate()
+            ->orderBy('id')
+            ->get();
+
+        foreach ($referrals as $referral) {
+            $usedRewardAmount = (float) $referral->rewardUses()->lockForUpdate()->sum('amount');
+            $availableRewardAmount = round(max(0, (float) $referral->reward_amount - $usedRewardAmount), 2);
+
+            if ($availableRewardAmount === 0.0) {
+                $referral->update(['reward_status' => ReferralRewardStatus::Used]);
+
+                continue;
+            }
+
+            $amount = round(min($remainingCreditToApply, $availableRewardAmount), 2);
+            $remainingCreditToApply = round($remainingCreditToApply - $amount, 2);
+            $rewardUses->push([
+                'referral' => $referral,
+                'amount' => $amount,
+                'remaining_amount' => round($availableRewardAmount - $amount, 2),
+            ]);
+
+            if ($remainingCreditToApply === 0.0) {
+                break;
+            }
+        }
+
+        if ($remainingCreditToApply > 0) {
+            throw ValidationException::withMessages([
+                'referral_credit_amount' => 'El crédito solicitado supera el saldo disponible.',
+            ]);
+        }
+
+        return $rewardUses;
     }
 
     /**

@@ -1,5 +1,10 @@
-@props(['name'])
+@props([
+    'name' => null,
+    'field' => null,
+])
 
-@error($name)
-    <p {{ $attributes->merge(['class' => 'mt-1 text-sm text-red-600']) }}>{{ $message }}</p>
-@enderror
+@php($errorKey = $name ?? $field)
+
+@if ($errorKey && $errors->has($errorKey))
+    <p {{ $attributes->merge(['class' => 'mt-1 text-sm text-red-600']) }}>{{ $errors->first($errorKey) }}</p>
+@endif

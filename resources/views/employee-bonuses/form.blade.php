@@ -1,0 +1,4 @@
+@extends('layouts.admin')
+@section('content')
+<div class="mx-auto max-w-2xl space-y-6"><h1 class="text-2xl font-semibold">Registrar bono</h1><form method="POST" action="{{ route('employee-bonuses.store') }}" class="space-y-4 rounded-lg bg-white p-6 shadow ring-1 ring-gray-200">@csrf<select name="employee_id" required class="w-full rounded border-gray-300"><option value="">Empleado</option>@foreach($employees as $employee)<option value="{{ $employee->id }}">{{ $employee->fullName() }}</option>@endforeach</select><input type="month" name="period" value="{{ now()->format('Y-m') }}" required class="w-full rounded border-gray-300"><input type="number" min="0" step="0.01" name="amount" required placeholder="Monto" class="w-full rounded border-gray-300"><textarea name="reason" required placeholder="Motivo" class="w-full rounded border-gray-300"></textarea><button class="rounded bg-indigo-600 px-4 py-2 text-white">Guardar</button></form></div>
+@endsection

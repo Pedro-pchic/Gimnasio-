@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
 
         $user = User::query()->firstOrCreate(
             ['email' => 'test@example.com'],
-            User::factory()->make(['name' => 'Test User'])->only(['name', 'password']),
+            User::factory()->make(['name' => 'Administrador'])->only(['name', 'password']),
         );
 
         $user->roles()->sync([

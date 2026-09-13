@@ -30,6 +30,7 @@ class StoreSaleRequest extends FormRequest
             'branch_id' => ['required', 'integer', Rule::exists('branches', 'id')],
             'sale_date' => ['required', 'date'],
             'discount' => ['nullable', 'numeric', 'min:0'],
+            'referral_credit_amount' => ['nullable', 'numeric', 'min:0'],
             'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
             'reference' => ['nullable', 'string', 'max:255'],
             'observations' => ['nullable', 'string'],
@@ -49,6 +50,12 @@ class StoreSaleRequest extends FormRequest
     {
         return [
             function (Validator $validator): void {
+                if (! $validator->errors()->hasAny(['client_id', 'referral_credit_amount'])
+                    && (float) $this->input('referral_credit_amount', 0) > 0
+                    && blank($this->input('client_id'))) {
+                    $validator->errors()->add('client_id', 'Selecciona el cliente que utilizará el crédito de referido.');
+                }
+
                 if ($validator->errors()->has('details')) {
                     return;
                 }

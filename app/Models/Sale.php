@@ -47,6 +47,11 @@ class Sale extends Model
         return $this->hasOne(Receipt::class);
     }
 
+    public function referralRewardUses(): HasMany
+    {
+        return $this->hasMany(ReferralRewardUse::class);
+    }
+
     /**
      * @return array<string, string|class-string>
      */

@@ -42,6 +42,11 @@ class Employee extends Model
         return $this->hasMany(EmployeeAttendance::class);
     }
 
+    public function bonuses(): HasMany
+    {
+        return $this->hasMany(EmployeeBonus::class);
+    }
+
     public function gymClasses(): HasMany
     {
         return $this->hasMany(GymClass::class, 'instructor_employee_id');

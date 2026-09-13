@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable(['branch_id', 'code', 'first_name', 'last_name', 'birth_date', 'phone', 'email', 'address', 'registration_date', 'is_active'])]
 class Client extends Model
@@ -33,6 +34,16 @@ class Client extends Model
     public function sales(): HasMany
     {
         return $this->hasMany(Sale::class);
+    }
+
+    public function referralReceived(): HasOne
+    {
+        return $this->hasOne(Referral::class, 'referred_client_id');
+    }
+
+    public function referralsSent(): HasMany
+    {
+        return $this->hasMany(Referral::class, 'referrer_client_id');
     }
 
     public function gymClassEnrollments(): HasMany

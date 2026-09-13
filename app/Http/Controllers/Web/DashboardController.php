@@ -3,22 +3,29 @@
 namespace App\Http\Controllers\Web;
 
 use App\ClientMembershipStatus;
+use App\EquipmentMaintenanceStatus;
 use App\Http\Controllers\Controller;
+use App\InventoryItemStatus;
+use App\InventoryItemType;
 use App\Models\Branch;
 use App\Models\Client;
 use App\Models\ClientMembership;
 use App\Models\CommercialPartner;
 use App\Models\Employee;
 use App\Models\EmployeeAttendance;
+use App\Models\EquipmentMaintenance;
 use App\Models\GymClassEnrollment;
 use App\Models\GymClassSchedule;
+use App\Models\InventoryItem;
 use App\Models\MembershipType;
 use App\Models\Payment;
+use App\Models\Referral;
 use App\Models\Sale;
 use App\Models\SaleDetail;
 use App\Models\Service;
 use App\Models\ThirdPartyItem;
 use App\PaymentStatus;
+use App\ReferralRewardStatus;
 use App\SaleDetailType;
 use App\SaleStatus;
 use Illuminate\View\View;
@@ -57,6 +64,14 @@ class DashboardController extends Controller
                 ['label' => 'Servicios activos', 'value' => Service::query()->where('is_active', true)->count()],
                 ['label' => 'Pagos cobrados hoy', 'value' => Payment::query()->where('status', PaymentStatus::Paid)->whereDate('payment_date', today())->count()],
                 ['label' => 'Ventas completadas hoy', 'value' => Sale::query()->where('status', SaleStatus::Completed)->whereDate('sale_date', today())->count()],
+                ['label' => 'Referidos del mes', 'value' => Referral::query()->where('created_at', '>=', today()->startOfMonth())->count()],
+                ['label' => 'Beneficios de referido disponibles', 'value' => Referral::query()->where('reward_status', ReferralRewardStatus::Available)->count()],
+                ['label' => 'Beneficios de referido pendientes', 'value' => Referral::query()->where('reward_status', ReferralRewardStatus::Pending)->count()],
+                ['label' => 'Beneficios de referido utilizados', 'value' => Referral::query()->where('reward_status', ReferralRewardStatus::Used)->count()],
+                ['label' => 'Artículos activos', 'value' => InventoryItem::query()->where('status', InventoryItemStatus::Active)->count()],
+                ['label' => 'Equipos en mantenimiento', 'value' => InventoryItem::query()->where('type', InventoryItemType::Equipment)->where('status', InventoryItemStatus::Maintenance)->count()],
+                ['label' => 'Artículos con stock bajo', 'value' => InventoryItem::query()->whereNotNull('quantity')->whereNotNull('minimum_stock')->whereColumn('quantity', '<=', 'minimum_stock')->count()],
+                ['label' => 'Mantenimientos pendientes', 'value' => EquipmentMaintenance::query()->where('status', EquipmentMaintenanceStatus::Pending)->count()],
                 ['label' => 'Lineas externas vendidas hoy', 'value' => $thirdPartySalesToday->details_count],
                 ['label' => 'Monto externo vendido hoy', 'value' => number_format((float) $thirdPartySalesToday->total_amount, 2)],
                 ['label' => 'Productos y servicios externos activos', 'value' => ThirdPartyItem::query()->where('is_active', true)->count()],

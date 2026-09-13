@@ -39,6 +39,10 @@ class DashboardControllerTest extends TestCase
             ->assertSee('Servicios activos')
             ->assertSee('Pagos cobrados hoy')
             ->assertSee('Ventas completadas hoy')
+            ->assertSee('Referidos del mes')
+            ->assertSee('Beneficios de referido disponibles')
+            ->assertSee('Beneficios de referido pendientes')
+            ->assertSee('Beneficios de referido utilizados')
             ->assertSee('Lineas externas vendidas hoy')
             ->assertSee('Monto externo vendido hoy')
             ->assertSee('Productos y servicios externos activos')
@@ -51,7 +55,11 @@ class DashboardControllerTest extends TestCase
             ->assertSee('Empleados activos')
             ->assertSee('Empleados presentes ahora')
             ->assertSee('Entradas laborales de hoy')
-            ->assertSee('Asistencias pendientes de salida');
+            ->assertSee('Asistencias pendientes de salida')
+            ->assertSee('Artículos activos')
+            ->assertSee('Equipos en mantenimiento')
+            ->assertSee('Artículos con stock bajo')
+            ->assertSee('Mantenimientos pendientes');
     }
 
     private function administrativeUser(): User

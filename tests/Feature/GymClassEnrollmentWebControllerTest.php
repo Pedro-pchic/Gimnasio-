@@ -30,7 +30,7 @@ class GymClassEnrollmentWebControllerTest extends TestCase
         $response = $this->actingAs($user)->post('/class-enrollments', [
             'client_id' => $client->id,
             'gym_class_schedule_id' => $schedule->id,
-            'enrollment_date' => '2026-09-14',
+            'enrollment_date' => '2026-09-21',
         ]);
         $enrollment = GymClassEnrollment::query()->firstOrFail();
 
@@ -52,7 +52,7 @@ class GymClassEnrollmentWebControllerTest extends TestCase
             ->post('/class-enrollments', [
                 'client_id' => $client->id,
                 'gym_class_schedule_id' => $schedule->id,
-                'enrollment_date' => '2026-09-14',
+                'enrollment_date' => '2026-09-21',
             ])
             ->assertInvalid(['client_id']);
 
@@ -64,7 +64,7 @@ class GymClassEnrollmentWebControllerTest extends TestCase
         $user = $this->userWithRole('Recepcionista');
         [$client, $schedule] = $this->activeClientAndMondaySchedule();
         GymClassEnrollment::factory()->for($client)->for($schedule)->create([
-            'enrollment_date' => '2026-09-14',
+            'enrollment_date' => '2026-09-21',
             'status' => GymClassEnrollmentStatus::Enrolled,
         ]);
 
@@ -72,7 +72,7 @@ class GymClassEnrollmentWebControllerTest extends TestCase
             ->post('/class-enrollments', [
                 'client_id' => $client->id,
                 'gym_class_schedule_id' => $schedule->id,
-                'enrollment_date' => '2026-09-14',
+                'enrollment_date' => '2026-09-21',
             ])
             ->assertInvalid(['client_id']);
 
@@ -85,7 +85,7 @@ class GymClassEnrollmentWebControllerTest extends TestCase
         [$firstClient, $schedule] = $this->activeClientAndMondaySchedule(1);
         $secondClient = $this->activeClientForBranch($schedule->gymClass->branch);
         GymClassEnrollment::factory()->for($firstClient)->for($schedule)->create([
-            'enrollment_date' => '2026-09-14',
+            'enrollment_date' => '2026-09-21',
             'status' => GymClassEnrollmentStatus::Enrolled,
         ]);
 
@@ -93,11 +93,35 @@ class GymClassEnrollmentWebControllerTest extends TestCase
             ->post('/class-enrollments', [
                 'client_id' => $secondClient->id,
                 'gym_class_schedule_id' => $schedule->id,
-                'enrollment_date' => '2026-09-14',
+                'enrollment_date' => '2026-09-21',
             ])
             ->assertInvalid(['gym_class_schedule_id']);
 
         $this->assertDatabaseCount('gym_class_enrollments', 1);
+    }
+
+    public function test_enrollment_rejects_a_standard_member_from_a_premium_activity(): void
+    {
+        $user = $this->userWithRole('Recepcionista');
+        $branch = Branch::factory()->create();
+        $client = $this->activeClientForBranch($branch);
+        $client->memberships()->firstOrFail()->membershipType->update(['name' => 'Básica']);
+        $schedule = GymClassSchedule::factory()->for(GymClass::factory()->for($branch)->state([
+            'requires_premium' => true,
+        ]))->create([
+            'day_of_week' => 'monday',
+            'maximum_capacity' => 10,
+        ]);
+
+        $this->actingAs($user)
+            ->post('/class-enrollments', [
+                'client_id' => $client->id,
+                'gym_class_schedule_id' => $schedule->id,
+                'enrollment_date' => '2026-09-21',
+            ])
+            ->assertInvalid(['client_id']);
+
+        $this->assertDatabaseCount('gym_class_enrollments', 0);
     }
 
     public function test_cancellation_keeps_history_and_instructor_marks_attendance(): void
@@ -127,7 +151,10 @@ class GymClassEnrollmentWebControllerTest extends TestCase
         $client = $this->activeClientForBranch($branch);
         $schedule = GymClassSchedule::factory()->for(GymClass::factory()->for($branch)->state([
             'maximum_capacity' => $capacity,
-        ]))->create(['day_of_week' => 'monday']);
+        ]))->create([
+            'day_of_week' => 'monday',
+            'maximum_capacity' => $capacity,
+        ]);
 
         return [$client, $schedule];
     }

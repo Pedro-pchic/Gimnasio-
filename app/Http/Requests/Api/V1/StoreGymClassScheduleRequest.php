@@ -28,6 +28,7 @@ class StoreGymClassScheduleRequest extends FormRequest
             'day_of_week' => ['required', Rule::in(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i'],
+            'maximum_capacity' => ['sometimes', 'required', 'integer', 'min:1'],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }

@@ -29,6 +29,7 @@ class UpdateGymClassScheduleRequest extends FormRequest
             'day_of_week' => ['sometimes', 'required', Rule::in(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])],
             'start_time' => ['sometimes', 'required', 'date_format:H:i'],
             'end_time' => ['sometimes', 'required', 'date_format:H:i'],
+            'maximum_capacity' => ['sometimes', 'required', 'integer', 'min:1'],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }

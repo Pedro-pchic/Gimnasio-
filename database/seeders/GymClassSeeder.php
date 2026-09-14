@@ -31,6 +31,7 @@ class GymClassSeeder extends Seeder
                 'description' => 'Actividad general de acondicionamiento.',
                 'type' => 'general',
                 'maximum_capacity' => 20,
+                'requires_premium' => false,
                 'is_active' => true,
             ],
         );
@@ -40,6 +41,7 @@ class GymClassSeeder extends Seeder
                 'description' => 'Actividad de natación para nivel inicial.',
                 'type' => 'natacion',
                 'maximum_capacity' => 10,
+                'requires_premium' => false,
                 'is_active' => true,
             ],
         );
@@ -49,6 +51,7 @@ class GymClassSeeder extends Seeder
                 'description' => 'Actividad de boxeo con técnica y acondicionamiento.',
                 'type' => 'boxeo',
                 'maximum_capacity' => 15,
+                'requires_premium' => false,
                 'is_active' => true,
             ],
         );
@@ -66,6 +69,7 @@ class GymClassSeeder extends Seeder
                 ],
                 [
                     'end_time' => $endTime,
+                    'maximum_capacity' => $class->maximum_capacity,
                     'is_active' => true,
                 ],
             );

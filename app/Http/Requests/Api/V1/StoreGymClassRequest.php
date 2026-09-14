@@ -35,6 +35,7 @@ class StoreGymClassRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'type' => ['required', 'string', 'max:50'],
             'maximum_capacity' => ['required', 'integer', 'min:1'],
+            'requires_premium' => ['sometimes', 'boolean'],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }

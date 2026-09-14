@@ -35,6 +35,7 @@ class UpdateGymClassRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'type' => ['sometimes', 'required', 'string', 'max:50'],
             'maximum_capacity' => ['sometimes', 'required', 'integer', 'min:1'],
+            'requires_premium' => ['sometimes', 'boolean'],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }

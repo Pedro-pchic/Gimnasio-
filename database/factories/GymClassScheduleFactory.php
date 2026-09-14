@@ -23,6 +23,7 @@ class GymClassScheduleFactory extends Factory
             'day_of_week' => 'monday',
             'start_time' => '08:00:00',
             'end_time' => '09:00:00',
+            'maximum_capacity' => 20,
             'is_active' => true,
         ];
     }

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['gym_class_id', 'day_of_week', 'start_time', 'end_time', 'is_active'])]
+#[Fillable(['gym_class_id', 'day_of_week', 'start_time', 'end_time', 'maximum_capacity', 'is_active'])]
 class GymClassSchedule extends Model
 {
     /** @use HasFactory<GymClassScheduleFactory> */
@@ -34,7 +34,7 @@ class GymClassSchedule extends Model
             ->whereIn('status', GymClassEnrollmentStatus::capacityBlockingValues())
             ->count();
 
-        return max(0, $this->gymClass->maximum_capacity - $enrolledCount);
+        return max(0, $this->maximum_capacity - $enrolledCount);
     }
 
     /**
@@ -43,6 +43,7 @@ class GymClassSchedule extends Model
     protected function casts(): array
     {
         return [
+            'maximum_capacity' => 'integer',
             'is_active' => 'boolean',
         ];
     }

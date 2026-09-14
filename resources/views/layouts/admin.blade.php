@@ -1,13 +1,118 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{ config('app.name') }} · @yield('title', 'Administración')</title>@vite(['resources/css/app.css', 'resources/js/app.js'])</head>
-<body class="min-h-screen bg-slate-100 text-slate-900"><div class="min-h-screen lg:grid lg:grid-cols-[17rem_1fr]"><aside class="bg-slate-900 p-4 text-slate-100 lg:p-6"><a href="{{ route('dashboard') }}" class="mb-6 block text-xl font-bold text-white">Gimnasio · Administración</a><nav class="max-h-[calc(100vh-7rem)] space-y-1 overflow-y-auto" aria-label="Navegación principal">
-@can('dashboard.view')<a href="{{ route('dashboard') }}" @class(['nav-link', 'bg-slate-700 text-white' => request()->routeIs('dashboard'), 'text-slate-300 hover:bg-slate-800' => ! request()->routeIs('dashboard')])>Dashboard</a>@endcan
-<p class="section-title">Configuración</p>@can('branches.view')<a href="{{ route('branches.index') }}" @class(['nav-link', 'active' => request()->routeIs('branches.*')])>Sucursales</a>@endcan @can('services.view')<a href="{{ route('services.index') }}" @class(['nav-link', 'active' => request()->routeIs('services.*')])>Servicios</a>@endcan
-<p class="section-title">Clientes</p>@can('clients.view')<a href="{{ route('clients.index') }}" @class(['nav-link', 'active' => request()->routeIs('clients.*')])>Clientes</a>@endcan @can('membership-types.view')<a href="{{ route('membership-types.index') }}" @class(['nav-link', 'active' => request()->routeIs('membership-types.*')])>Membresías</a>@endcan @can('benefits.view')<a href="{{ route('benefits.index') }}" @class(['nav-link', 'active' => request()->routeIs('benefits.*')])>Beneficios</a>@endcan @can('client-memberships.view')<a href="{{ route('client-memberships.index') }}" @class(['nav-link', 'active' => request()->routeIs('client-memberships.*')])>Membresías de clientes</a>@endcan @can('renewals.view')<a href="{{ route('renewals.index') }}" @class(['nav-link', 'active' => request()->routeIs('renewals.*')])>Renovaciones</a>@endcan @can('referrals.view')<a href="{{ route('referrals.index') }}" @class(['nav-link', 'active' => request()->routeIs('referrals.*')])>Referidos</a>@endcan
-<p class="section-title">Comercial</p>@can('payments.view')<a href="{{ route('payments.index') }}" @class(['nav-link', 'active' => request()->routeIs('payments.*')])>Pagos</a>@endcan @can('sales.view')<a href="{{ route('sales.index') }}" @class(['nav-link', 'active' => request()->routeIs('sales.*')])>Ventas</a>@endcan @can('commercial-partners.view')<a href="{{ route('commercial-partners.index') }}" @class(['nav-link', 'active' => request()->routeIs('commercial-partners.*')])>Terceros</a>@endcan @can('third-party-items.view')<a href="{{ route('third-party-items.index') }}" @class(['nav-link', 'active' => request()->routeIs('third-party-items.*')])>Productos externos</a>@endcan @can('discounts.view')<a href="{{ route('discounts.index') }}" @class(['nav-link', 'active' => request()->routeIs('discounts.*')])>Descuentos</a>@endcan
-<p class="section-title">Personal</p>@can('employees.view')<a href="{{ route('employees.index') }}" @class(['nav-link', 'active' => request()->routeIs('employees.*')])>Empleados</a>@endcan @can('positions.manage')<a href="{{ route('positions.index') }}" @class(['nav-link', 'active' => request()->routeIs('positions.*')])>Puestos</a>@endcan @can('work-shifts.manage')<a href="{{ route('work-shifts.index') }}" @class(['nav-link', 'active' => request()->routeIs('work-shifts.*', 'employee-shift-assignments.*')])>Turnos</a>@endcan @can('employee-attendances.view')<a href="{{ route('employee-attendances.index') }}" @class(['nav-link', 'active' => request()->routeIs('employee-attendances.*')])>Asistencia</a>@endcan @can('view_bonuses')<a href="{{ route('employee-bonuses.index') }}" @class(['nav-link', 'active' => request()->routeIs('employee-bonuses.*')])>Bonos</a>@endcan
-<p class="section-title">Operaciones</p>@can('classes.view')<a href="{{ route('gym-classes.index') }}" @class(['nav-link', 'active' => request()->routeIs('gym-classes.*')])>Clases</a>@endcan @can('schedules.view')<a href="{{ route('class-schedules.index') }}" @class(['nav-link', 'active' => request()->routeIs('class-schedules.*')])>Horarios</a>@endcan @can('enrollments.view')<a href="{{ route('class-enrollments.index') }}" @class(['nav-link', 'active' => request()->routeIs('class-enrollments.*')])>Participantes</a>@endcan
-<p class="section-title">Inventario y compras</p>@can('view_inventory')<a href="{{ route('inventory-items.index') }}" @class(['nav-link', 'active' => request()->routeIs('inventory-items.*')])>Inventario</a>@endcan @can('view_maintenance')<a href="{{ route('equipment-maintenances.index') }}" @class(['nav-link', 'active' => request()->routeIs('equipment-maintenances.*')])>Mantenimiento</a>@endcan @can('view_suppliers')<a href="{{ route('suppliers.index') }}" @class(['nav-link', 'active' => request()->routeIs('suppliers.*')])>Proveedores</a>@endcan @can('view_purchases')<a href="{{ route('purchase-orders.index') }}" @class(['nav-link', 'active' => request()->routeIs('purchase-orders.*', 'quality-certificates.*')])>Órdenes de compra y certificados</a>@endcan
-<p class="section-title">Reportes</p>@can('view_reports')<a href="{{ route('reports.index') }}" @class(['nav-link', 'active' => request()->routeIs('reports.*')])>Reportes</a>@endcan
-</nav></aside><main class="min-w-0"><header class="flex flex-col gap-3 border-b border-slate-200 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8"><div><p class="text-sm font-medium">{{ $authenticatedUser->name }}</p><p class="text-xs text-slate-500">{{ $authenticatedUser->roles->pluck('name')->join(' · ') }}</p></div><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="rounded-lg border border-slate-300 px-3 py-2 text-sm">Cerrar sesión</button></form></header><div class="mx-auto max-w-7xl p-5 sm:p-8">@if(session('success'))<div class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">{{ session('success') }}</div>@endif @if($errors->any())<div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">Revisa los campos marcados para continuar.</div>@endif @yield('content')</div></main></div><style>.nav-link{display:block;border-radius:.5rem;padding:.5rem .75rem;font-size:.875rem;font-weight:500}.nav-link.active{background-color:#334155;color:#fff}.section-title{margin-top:1rem;padding:0 .75rem;font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#64748b}</style></body></html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ config('app.name') }} · @yield('title', 'Administración')</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="min-h-screen bg-slate-100 font-sans text-slate-900 antialiased">
+    <div class="min-h-screen lg:grid lg:grid-cols-[18rem_minmax(0,1fr)]">
+        <aside class="flex h-screen flex-col border-r border-white/5 bg-slate-950 px-4 py-5 text-slate-100 lg:sticky lg:top-0 lg:px-5">
+            <a href="{{ route('dashboard') }}" class="group mb-4 flex shrink-0 items-center gap-3 rounded-2xl px-2 py-2 transition hover:bg-white/5">
+                <span class="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-950/40">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5" aria-hidden="true"><path d="M5 20V10m7 10V4m7 16v-7" stroke-linecap="round" /><path d="m3 10 4-4 5 3 7-6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                </span>
+                <span>
+                    <span class="block text-sm font-bold tracking-tight text-white">Gimnasio</span>
+                    <span class="block text-xs font-medium text-slate-400">Administración</span>
+                </span>
+            </a>
+
+            <nav class="sidebar-scroll min-h-0 flex-1 space-y-1 overflow-y-auto pb-6 pr-1" aria-label="Navegación principal">
+                @can('dashboard.view')
+                    <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">Dashboard</x-nav-link>
+                @endcan
+
+                <p class="px-3 pt-4 pb-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Configuración</p>
+                @can('branches.view')<x-nav-link href="{{ route('branches.index') }}" icon="building" :active="request()->routeIs('branches.*')">Sucursales</x-nav-link>@endcan
+                @can('services.view')<x-nav-link href="{{ route('services.index') }}" icon="settings" :active="request()->routeIs('services.*')">Servicios</x-nav-link>@endcan
+
+                <p class="px-3 pt-4 pb-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Clientes</p>
+                @can('clients.view')<x-nav-link href="{{ route('clients.index') }}" icon="users" :active="request()->routeIs('clients.*')">Clientes</x-nav-link>@endcan
+                @can('membership-types.view')<x-nav-link href="{{ route('membership-types.index') }}" icon="card" :active="request()->routeIs('membership-types.*')">Membresías</x-nav-link>@endcan
+                @can('benefits.view')<x-nav-link href="{{ route('benefits.index') }}" icon="grid" :active="request()->routeIs('benefits.*')">Beneficios</x-nav-link>@endcan
+                @can('client-memberships.view')<x-nav-link href="{{ route('client-memberships.index') }}" icon="card" :active="request()->routeIs('client-memberships.*')">Membresías de clientes</x-nav-link>@endcan
+                @can('renewals.view')<x-nav-link href="{{ route('renewals.index') }}" icon="calendar" :active="request()->routeIs('renewals.*')">Renovaciones</x-nav-link>@endcan
+                @can('referrals.view')<x-nav-link href="{{ route('referrals.index') }}" icon="users" :active="request()->routeIs('referrals.*')">Referidos</x-nav-link>@endcan
+
+                <p class="px-3 pt-4 pb-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Comercial</p>
+                @can('payments.view')<x-nav-link href="{{ route('payments.index') }}" icon="card" :active="request()->routeIs('payments.*')">Pagos</x-nav-link>@endcan
+                @can('sales.view')<x-nav-link href="{{ route('sales.index') }}" icon="chart" :active="request()->routeIs('sales.*')">Ventas</x-nav-link>@endcan
+                @can('invoices.view')<x-nav-link href="{{ route('invoices.index') }}" icon="grid" :active="request()->routeIs('invoices.*')">Facturación</x-nav-link>@endcan
+                @can('commercial-partners.view')<x-nav-link href="{{ route('commercial-partners.index') }}" icon="building" :active="request()->routeIs('commercial-partners.*')">Terceros</x-nav-link>@endcan
+                @can('third-party-items.view')<x-nav-link href="{{ route('third-party-items.index') }}" icon="box" :active="request()->routeIs('third-party-items.*')">Productos externos</x-nav-link>@endcan
+                @can('discounts.view')<x-nav-link href="{{ route('discounts.index') }}" icon="card" :active="request()->routeIs('discounts.*')">Descuentos</x-nav-link>@endcan
+
+                <p class="px-3 pt-4 pb-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Personal</p>
+                @can('employees.view')<x-nav-link href="{{ route('employees.index') }}" icon="users" :active="request()->routeIs('employees.*')">Empleados</x-nav-link>@endcan
+                @can('positions.manage')<x-nav-link href="{{ route('positions.index') }}" icon="briefcase" :active="request()->routeIs('positions.*')">Puestos</x-nav-link>@endcan
+                @can('work-shifts.manage')<x-nav-link href="{{ route('work-shifts.index') }}" icon="calendar" :active="request()->routeIs('work-shifts.*', 'employee-shift-assignments.*')">Turnos</x-nav-link>@endcan
+                @can('employee-attendances.view')<x-nav-link href="{{ route('employee-attendances.index') }}" icon="calendar" :active="request()->routeIs('employee-attendances.*')">Asistencia</x-nav-link>@endcan
+                @can('view_bonuses')<x-nav-link href="{{ route('employee-bonuses.index') }}" icon="chart" :active="request()->routeIs('employee-bonuses.*')">Bonos</x-nav-link>@endcan
+
+                <p class="px-3 pt-4 pb-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Operaciones</p>
+                @can('biometric-access.view')<x-nav-link href="{{ route('biometric-access.index') }}" icon="scan" :active="request()->routeIs('biometric-access.*')">Control biométrico</x-nav-link>@endcan
+                @can('classes.view')<x-nav-link href="{{ route('gym-classes.index') }}" icon="grid" :active="request()->routeIs('gym-classes.*')">Clases</x-nav-link>@endcan
+                @can('schedules.view')<x-nav-link href="{{ route('class-schedules.index') }}" icon="calendar" :active="request()->routeIs('class-schedules.*')">Horarios</x-nav-link>@endcan
+                @can('enrollments.view')<x-nav-link href="{{ route('class-enrollments.index') }}" icon="users" :active="request()->routeIs('class-enrollments.*')">Participantes</x-nav-link>@endcan
+                @can('enrollments.view')<x-nav-link href="{{ route('class-reservations.index') }}" icon="calendar" :active="request()->routeIs('class-reservations.*')">Reservas</x-nav-link>@endcan
+
+                <p class="px-3 pt-4 pb-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Inventario y compras</p>
+                @can('view_inventory')<x-nav-link href="{{ route('inventory-items.index') }}" icon="box" :active="request()->routeIs('inventory-items.*')">Inventario</x-nav-link>@endcan
+                @can('view_maintenance')<x-nav-link href="{{ route('equipment-maintenances.index') }}" icon="settings" :active="request()->routeIs('equipment-maintenances.*')">Mantenimiento</x-nav-link>@endcan
+                @can('view_suppliers')<x-nav-link href="{{ route('suppliers.index') }}" icon="building" :active="request()->routeIs('suppliers.*')">Proveedores</x-nav-link>@endcan
+                @can('view_purchases')<x-nav-link href="{{ route('purchase-orders.index') }}" icon="box" :active="request()->routeIs('purchase-orders.*')">Órdenes de compra</x-nav-link>@endcan
+                @can('view_purchases')<x-nav-link href="{{ route('quality-certificates.index') }}" icon="grid" :active="request()->routeIs('quality-certificates.*')">Certificados</x-nav-link>@endcan
+
+                <p class="px-3 pt-4 pb-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Reportes</p>
+                @can('view_reports')<x-nav-link href="{{ route('reports.index') }}" icon="chart" :active="request()->routeIs('reports.*')">Reportes</x-nav-link>@endcan
+            </nav>
+        </aside>
+
+        <main class="min-w-0">
+            <header class="sticky top-0 z-10 flex min-h-20 items-center justify-between gap-4 border-b border-slate-200/80 bg-white/95 px-5 py-4 backdrop-blur sm:px-8">
+                <div class="min-w-0">
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Gimnasio / Administración</p>
+                    <h1 class="mt-1 truncate text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">@yield('title', 'Dashboard')</h1>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="hidden text-right sm:block">
+                        <p class="text-sm font-semibold text-slate-800">{{ $authenticatedUser->name }}</p>
+                        <p class="mt-0.5 text-xs font-medium text-slate-500">{{ $authenticatedUser->roles->pluck('name')->join(' · ') }}</p>
+                    </div>
+                    <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-bold text-white shadow-md shadow-blue-200">
+                        {{ mb_strtoupper(mb_substr($authenticatedUser->name, 0, 1)) }}
+                    </span>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="inline-flex size-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600" title="Cerrar sesión">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-5" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M14 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                            <span class="sr-only">Cerrar sesión</span>
+                        </button>
+                    </form>
+                </div>
+            </header>
+
+            <div class="mx-auto w-full max-w-[1600px] p-5 sm:p-8">
+                @if (session('success'))
+                    <div class="mb-6 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 shadow-sm" role="status">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mt-0.5 size-4 shrink-0" aria-hidden="true"><path d="m5 12 4 4L19 6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                        <span>{{ session('success') }}</span>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 shadow-sm" role="alert">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mt-0.5 size-4 shrink-0" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 8v4m0 4h.01" stroke-linecap="round" /></svg>
+                        <span>Revisa los campos marcados para continuar.</span>
+                    </div>
+                @endif
+
+                @yield('content')
+            </div>
+        </main>
+    </div>
+</body>
+</html>

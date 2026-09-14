@@ -9,6 +9,16 @@ enum GymClassEnrollmentStatus: string
     case Cancelled = 'cancelled';
     case Absent = 'absent';
 
+    public function label(): string
+    {
+        return match ($this) {
+            self::Enrolled => 'Reservada',
+            self::Attended => 'Asistió',
+            self::Cancelled => 'Cancelada',
+            self::Absent => 'Ausente',
+        };
+    }
+
     /**
      * @return array<int, string>
      */

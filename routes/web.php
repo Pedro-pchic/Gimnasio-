@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Web\AuthenticatedSessionController;
 use App\Http\Controllers\Web\BenefitController;
+use App\Http\Controllers\Web\BiometricAccessController;
 use App\Http\Controllers\Web\BranchController;
 use App\Http\Controllers\Web\ClientController;
 use App\Http\Controllers\Web\ClientMembershipController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Web\GymClassController;
 use App\Http\Controllers\Web\GymClassEnrollmentController;
 use App\Http\Controllers\Web\GymClassScheduleController;
 use App\Http\Controllers\Web\InventoryItemController;
+use App\Http\Controllers\Web\InvoiceController;
 use App\Http\Controllers\Web\MembershipTypeController;
 use App\Http\Controllers\Web\PaymentController;
 use App\Http\Controllers\Web\PositionController;
@@ -104,6 +106,9 @@ Route::middleware('auth')->group(function (): void {
     Route::resource('payments', PaymentController::class)->only(['index', 'show'])->middleware('can:payments.view');
     Route::patch('/payments/{payment}/cancel', [PaymentController::class, 'cancel'])->middleware('can:payments.manage')->name('payments.cancel');
 
+    Route::get('/invoices', [InvoiceController::class, 'index'])->middleware('can:invoices.view')->name('invoices.index');
+    Route::get('/invoices/{sale}', [InvoiceController::class, 'show'])->middleware('can:invoices.view')->name('invoices.show');
+
     Route::resource('sales', SaleController::class)->only(['create', 'store'])->middleware('can:sales.manage');
     Route::resource('sales', SaleController::class)->only(['index', 'show'])->middleware('can:sales.view');
     Route::get('/sales/{sale}/receipt', [SaleController::class, 'receipt'])->middleware('can:sales.view')->name('sales.receipt');
@@ -129,6 +134,9 @@ Route::middleware('auth')->group(function (): void {
     Route::resource('employee-attendances', EmployeeAttendanceController::class)->only(['index', 'show'])->middleware('can:employee-attendances.view');
     Route::patch('/employee-attendances/{employeeAttendance}/checkout', [EmployeeAttendanceController::class, 'checkOut'])->middleware('can:employee-attendances.register')->name('employee-attendances.checkout');
 
+    Route::get('/control-biometrico', [BiometricAccessController::class, 'index'])->middleware('can:biometric-access.view')->name('biometric-access.index');
+    Route::post('/control-biometrico', [BiometricAccessController::class, 'store'])->middleware('can:biometric-access.manage')->name('biometric-access.store');
+
     Route::resource('gym-classes', GymClassController::class)->only(['create', 'store', 'edit', 'update'])->middleware('can:classes.manage');
     Route::resource('gym-classes', GymClassController::class)->only(['index', 'show'])->middleware('can:classes.view');
     Route::patch('/gym-classes/{gymClass}/status', [GymClassController::class, 'toggleStatus'])->middleware('can:classes.manage')->name('gym-classes.toggle-status');
@@ -138,6 +146,7 @@ Route::middleware('auth')->group(function (): void {
 
     Route::resource('class-enrollments', GymClassEnrollmentController::class)->only(['create', 'store'])->middleware('can:enrollments.register');
     Route::resource('class-enrollments', GymClassEnrollmentController::class)->only(['index', 'show'])->middleware('can:enrollments.view');
+    Route::get('/class-reservations', [GymClassEnrollmentController::class, 'reservations'])->middleware('can:enrollments.view')->name('class-reservations.index');
     Route::patch('/class-enrollments/{classEnrollment}/cancel', [GymClassEnrollmentController::class, 'cancel'])->middleware('can:enrollments.register')->name('class-enrollments.cancel');
     Route::patch('/class-enrollments/{classEnrollment}/attendance', [GymClassEnrollmentController::class, 'markAttendance'])->middleware('can:enrollments.attendance')->name('class-enrollments.attendance');
 });

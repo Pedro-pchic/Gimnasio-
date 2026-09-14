@@ -113,6 +113,8 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
+        $this->call(ClientAccessSeeder::class);
+
         $this->call(GymClassSeeder::class);
         $this->call(EmployeeSeeder::class);
 

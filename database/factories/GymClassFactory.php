@@ -24,6 +24,7 @@ class GymClassFactory extends Factory
             'description' => fake()->optional()->sentence(),
             'type' => 'general',
             'maximum_capacity' => 20,
+            'requires_premium' => false,
             'is_active' => true,
         ];
     }

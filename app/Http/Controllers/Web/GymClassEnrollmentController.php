@@ -12,6 +12,7 @@ use App\Models\GymClassEnrollment;
 use App\Models\GymClassSchedule;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -38,6 +39,38 @@ class GymClassEnrollmentController extends Controller
     public function create(): View
     {
         return $this->formView();
+    }
+
+    public function reservations(Request $request): View
+    {
+        $data = $request->validate([
+            'date' => ['nullable', 'date'],
+        ]);
+        $reservationDate = Carbon::parse($data['date'] ?? now()->toDateString())->startOfDay();
+
+        return view('class-enrollments.reservations', [
+            'reservationDate' => $reservationDate,
+            'schedules' => GymClassSchedule::query()
+                ->with('gymClass')
+                ->withCount([
+                    'enrollments as reserved_count' => fn ($query) => $query
+                        ->capacityBlocking()
+                        ->whereDate('enrollment_date', $reservationDate),
+                ])
+                ->where('is_active', true)
+                ->where('day_of_week', strtolower($reservationDate->englishDayOfWeek))
+                ->whereHas('gymClass', fn ($query) => $query->where('is_active', true))
+                ->orderBy('start_time')
+                ->orderBy('id')
+                ->get(),
+            'reservations' => GymClassEnrollment::query()
+                ->with(['client', 'gymClassSchedule.gymClass'])
+                ->whereDate('enrollment_date', $reservationDate)
+                ->where('status', GymClassEnrollmentStatus::Enrolled)
+                ->orderBy('gym_class_schedule_id')
+                ->orderBy('id')
+                ->get(),
+        ]);
     }
 
     /**
@@ -67,6 +100,10 @@ class GymClassEnrollmentController extends Controller
                 throw ValidationException::withMessages(['enrollment_date' => 'La fecha debe coincidir con el día del horario seleccionado.']);
             }
 
+            if (Carbon::parse($classDate->toDateString().' '.$schedule->start_time)->lessThanOrEqualTo(now())) {
+                throw ValidationException::withMessages(['enrollment_date' => 'No se puede reservar un horario ya iniciado o pasado.']);
+            }
+
             $hasValidMembership = $client->memberships()
                 ->where('status', ClientMembershipStatus::Active)
                 ->whereDate('start_date', '<=', $classDate)
@@ -77,12 +114,22 @@ class GymClassEnrollmentController extends Controller
                 throw ValidationException::withMessages(['client_id' => 'El cliente no tiene una membresía activa para esta fecha.']);
             }
 
-            $alreadyEnrolled = $schedule->enrollments()
+            if ($gymClass->requires_premium && ! $client->memberships()
+                ->where('status', ClientMembershipStatus::Active)
+                ->whereDate('start_date', '<=', $classDate)
+                ->whereDate('end_date', '>=', $classDate)
+                ->whereHas('membershipType', fn ($query) => $query->where('name', 'Premium'))
+                ->exists()) {
+                throw ValidationException::withMessages(['client_id' => 'Esta actividad requiere membresía Premium.']);
+            }
+
+            $existingEnrollment = $schedule->enrollments()
                 ->where('client_id', $client->getKey())
                 ->whereDate('enrollment_date', $classDate)
-                ->exists();
+                ->lockForUpdate()
+                ->first();
 
-            if ($alreadyEnrolled) {
+            if ($existingEnrollment !== null && $existingEnrollment->status !== GymClassEnrollmentStatus::Cancelled) {
                 throw ValidationException::withMessages(['client_id' => 'El cliente ya tiene una inscripción para este horario y fecha.']);
             }
 
@@ -91,8 +138,14 @@ class GymClassEnrollmentController extends Controller
                 ->whereDate('enrollment_date', $classDate)
                 ->count();
 
-            if ($enrolledCount >= $gymClass->maximum_capacity) {
+            if ($enrolledCount >= $schedule->maximum_capacity) {
                 throw ValidationException::withMessages(['gym_class_schedule_id' => 'No hay cupos disponibles para este horario.']);
+            }
+
+            if ($existingEnrollment !== null) {
+                $existingEnrollment->update(['status' => GymClassEnrollmentStatus::Enrolled]);
+
+                return $existingEnrollment;
             }
 
             return GymClassEnrollment::query()->create([
@@ -121,6 +174,12 @@ class GymClassEnrollmentController extends Controller
      */
     public function cancel(GymClassEnrollment $classEnrollment): RedirectResponse
     {
+        if ($classEnrollment->status !== GymClassEnrollmentStatus::Enrolled) {
+            throw ValidationException::withMessages([
+                'class_enrollment' => 'Solo se puede cancelar una reserva pendiente.',
+            ]);
+        }
+
         $classEnrollment->update(['status' => GymClassEnrollmentStatus::Cancelled]);
 
         return redirect()->route('class-enrollments.show', $classEnrollment)->with('success', 'Inscripción cancelada correctamente.');
@@ -128,9 +187,9 @@ class GymClassEnrollmentController extends Controller
 
     public function markAttendance(GymClassEnrollment $classEnrollment): RedirectResponse
     {
-        if ($classEnrollment->status === GymClassEnrollmentStatus::Cancelled) {
+        if ($classEnrollment->status !== GymClassEnrollmentStatus::Enrolled) {
             throw ValidationException::withMessages([
-                'class_enrollment' => 'No se puede marcar asistencia en una inscripción cancelada.',
+                'class_enrollment' => 'El cliente no tiene una reserva válida para registrar asistencia.',
             ]);
         }
 

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Str;
 
-#[Fillable(['branch_id', 'instructor_employee_id', 'name', 'description', 'type', 'maximum_capacity', 'is_active'])]
+#[Fillable(['branch_id', 'instructor_employee_id', 'name', 'description', 'type', 'maximum_capacity', 'requires_premium', 'is_active'])]
 class GymClass extends Model
 {
     /** @use HasFactory<GymClassFactory> */
@@ -56,6 +56,7 @@ class GymClass extends Model
     {
         return [
             'maximum_capacity' => 'integer',
+            'requires_premium' => 'boolean',
             'is_active' => 'boolean',
         ];
     }
